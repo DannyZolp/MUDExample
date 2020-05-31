@@ -81,7 +81,7 @@ public class FirstPersonAIO : MonoBehaviour {
     float baseCamFOV;
     
 
-    public bool autoCrosshair = true;
+    public bool autoCrosshair = false;
     public bool drawStaminaMeter = true;
     float smoothRef;
     Image StaminaMeter;

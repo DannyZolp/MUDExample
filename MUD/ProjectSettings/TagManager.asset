@@ -9,6 +9,7 @@ TagManager:
   - ZPOS
   - ZNEG
   - Room
+  - Door
   layers:
   - Default
   - TransparentFX
