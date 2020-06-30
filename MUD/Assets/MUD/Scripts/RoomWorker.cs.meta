@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 77d66092b3e0c9f499d52dde2d454419
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - roomToClone: {fileID: 7959468394138585866, guid: 96f59deb59338a143b341a6e4cf132fd,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

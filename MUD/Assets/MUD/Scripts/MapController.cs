@@ -1,127 +1,208 @@
-﻿using System.Collections.Generic;
+﻿using Oculus.Platform.Models;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using Leguar.TotalJSON;
 using UnityEngine;
 
 public class MapController : MonoBehaviour
-{
-    public GameObject room;
-
-    public int roomsNeeded = 4;
-
-    public GameObject door;
-
-    private MapClass mc;
-
-    // Start is called before the first frame update
-    internal void Start()
+{   
+/*    private MapClass mapClass = new MapClass();
+    public GameObject RoomToClone;
+    void Start()
     {
-        mc = new MapClass(roomsNeeded);
+        JSON json = JSON.ParseString(File.OpenText("Assets/ExampleJson.json").ReadToEnd());
 
-        GameObject CentralRoom = mc.AddRoom(Instantiate(this.room, gameObject.transform, true));
-        CentralRoom.GetComponent<RoomController>().IsMiddle = true;
-
-        CreateRoomsAndDecideDoors(CentralRoom, this.room);
-    }
-
-    /*    private Queue<GameObject> MakeRooms()
-    {
-        Queue<GameObject> output = new Queue<GameObject>();
-        string[] doorTypes = { "x+", "x-", "z+", "z-" };
-        while (mc.CanGenerateMoreRooms())
-        {
-            GameObject parent = rooms.Pop();
-
-            GameObject[] parentDoors = parent.GetComponent<RoomController>().doors;
-            if (parentDoors.Length < 3)
-            {
-                parent.GetComponent<RoomController>().SpawnDoor(doorTypes[parentDoors.Length]);
-                rooms.Push(parent);
-            }
-            else if (parentDoors.Length >= 3)
-            {
-                GameObject[] doorList = parent.GetComponent<RoomController>().doors;
-                output.Enqueue(parent);
-                for (int i = 0; i <= 3; i++)
-                {
-                    rooms.Push(AddOneRoom(Instantiate(room, doorList[i].transform, true)));
-                }
-            }
-        }
-
-        while (rooms.Count != 0)
-        {
-            output.Enqueue(rooms.Pop());
-        }
-
-        return output;
+        RoomWorker rw = new RoomWorker(json, gameObject.transform, RoomToClone);
+        
     }*/
-    private void CreateRoomsAndDecideDoors(GameObject CentralRoom, GameObject RoomToCopy)
-    {
-        Queue<GameObject> work = new Queue<GameObject>();
 
-        work.Enqueue(CentralRoom);
+    // All of this is old code, only for reference!
+    /*    public int RoomsToGenerate;
+        public GameObject BlankRoom;
 
-        while (mc.GetRoomsNeeded() - mc.GetRoomsGenerated() >= 0)
+        private MapClass MapClass;
+
+        // Start is called before the first frame update
+        internal void Start()
         {
-            GameObject goingToFix = work.Dequeue();
+            // Instantiate Our MapClass
+            this.MapClass = new MapClass(RoomsToGenerate);
 
-            if (goingToFix.GetComponent<RoomController>().IsMiddle)
+            // Instantiate Our Work Queue
+            Queue<GameObject> Work = new Queue<GameObject>();
+
+            // Create Our Center Room, which we will be working with
+            GameObject CentralRoom = CreateCentralRoom(MapClass, BlankRoom);
+
+            // Add Doors to the Center Room
+            CentralRoom = AddDoorsToRoomMiddle(CentralRoom.GetComponent<RoomController>());
+
+            // Add CentralRoom to our MapClass's Room List
+            this.MapClass.AddRoom(CentralRoom);
+
+            // Create Rooms In The Doors We Instantiated
+            foreach (Transform Door in GetDoorsFromRoom(CentralRoom.transform))
             {
-                goingToFix.GetComponent<RoomController>().DoorsToGenerate = 4;
-                goingToFix = AddDoorsToThisRoom(goingToFix);
-                for (int i = 0; i < 4; i++)
+                Work.Enqueue(this.MapClass.AddRoom(AddRoomToDoor(Door, this.BlankRoom, this.MapClass, false)));
+            }
+
+            // Sees if we need to generate more rooms
+            while (this.MapClass.CanGenerateMoreRooms())
+            { // If we can...
+                *//*Debug.Log(this.MapClass.GetRoomsGenerated());*//*
+                Transform CurrentRoom = Work.Dequeue().transform;
+
+                int AmountOfRoomsToGenerate = this.MapClass.GetRoomsNeeded() - this.MapClass.GetRoomsGenerated();
+                Debug.Log(AmountOfRoomsToGenerate);
+
+                CurrentRoom = SetDoorAmountForRoom(CurrentRoom, AmountOfRoomsToGenerate > 3 ? 3 : AmountOfRoomsToGenerate);
+                CurrentRoom = AddDoorsToRoom(CurrentRoom.GetComponent<RoomController>(), CurrentRoom.GetComponentInParent<DoorController>().position);
+
+                foreach (Transform Door in GetDoorsFromRoom(CurrentRoom.transform))
                 {
-                    work.Enqueue(mc.AddRoom(InstantinateRoomInADoor(goingToFix, RoomToCopy)));
+                    GameObject NewRoom = AddRoomToDoor(Door, this.BlankRoom, this.MapClass);
+                    if (NewRoom != null) 
+                    {
+                        Work.Enqueue(this.MapClass.AddRoom(NewRoom));
+                    }
                 }
+            }
+        }
+
+        private GameObject CreateCentralRoom(MapClass mc, GameObject RoomToCopy)
+        {
+            GameObject CentralRoom = mc.AddRoom(Instantiate(RoomToCopy, gameObject.transform, true));
+            CentralRoom.GetComponent<RoomController>().IsMiddle = true;
+
+            return CentralRoom;
+        }
+
+        private Transform SetDoorAmountForRoom(Transform Room, int Doors)
+        {
+            Room.GetComponent<RoomController>().DoorsToGenerate = Doors;
+
+            return Room;
+        }
+
+        private GameObject AddDoorsToRoomMiddle(RoomController Room)
+        {
+            string[] Doors = { "x+", "x-", "z+", "z-" };
+            foreach (string Door in Doors)
+            {
+                Room.SpawnDoor(Door);
+            }
+
+            return Room.gameObject;
+        }
+
+        private Transform AddDoorsToRoom(RoomController Room, string DoorComingFrom)
+        {
+            string[] Doors = { "x+", "x-", "z+", "z-" };
+            for (int i = 0; Room.CanGenerateMoreRooms() && i<Doors.Length; i++)
+            {
+                if (GetOppositeDoor(DoorComingFrom) != Doors[i])
+                {
+                    Room.SpawnDoor(Doors[i]);
+                }
+            }
+            return Room.transform;
+        }
+
+        private string GetOppositeDoor(string door)
+        {
+            string[] normalDoors = { "x+", "x-", "z+", "z-" };
+            string[] oppositeDoors = { "x-", "x+", "z-", "z+" };
+
+            for (int i = 0; i < 4; i++)
+            {
+                if (normalDoors[i] == door)
+                {
+                    return oppositeDoors[i];
+                }
+            }
+            throw new ArgumentException("Door String Isn't Correct!", "door");
+        }
+
+        private Transform[] GetDoorsFromRoom(Transform Room)
+        {
+            List<Transform> children = new List<Transform>();
+            foreach (Transform tf in Room.GetComponentsInChildren<Transform>())
+            {
+                if (tf.tag == "Door")
+                {
+                    children.Add(tf);
+                }
+            }
+
+            return children.ToArray();
+        }
+
+        private GameObject AddRoomToDoor(Transform Door, GameObject BlankRoom, MapClass mc, bool DoExistCheck = true)
+        {
+            if (Door.childCount >= 1)
+            {
+                Vector3 PositionForRoom = GetPositionForNewRoomFromParentDoor(Door);
+                GameObject RoomThatAlreadyExists = null;
+                if (DoExistCheck)
+                {
+                    RoomThatAlreadyExists = IsPositionTaken(PositionForRoom, mc.GetRooms().ToArray());
+                }
+
+                if (RoomThatAlreadyExists == null)
+                {
+                    GameObject room = Instantiate(BlankRoom, PositionForRoom, BlankRoom.transform.rotation, Door);
+                    room.name = mc.GetRoomsGenerated().ToString();
+                    return room;
+                }
+                else
+                {
+                    Door.GetComponent<DoorController>().SetRoomTo(RoomThatAlreadyExists);
+                    return null;
+                }
+            }
+            throw new Exception("All Doors Already Have A Room Generated!");
+        }
+
+        private Vector3 GetPositionForNewRoomFromParentDoor(Transform parentDoor)
+        {
+            DoorController dc = parentDoor.GetComponent<DoorController>();
+            Vector3 parentPosition = dc.GetVector3();
+            if (dc.position == "x+")
+            {
+                parentPosition.x += 10;
+            }
+            else if (dc.position == "x-")
+            {
+                parentPosition.x -= 10;
+            }
+            else if (dc.position == "z+")
+            {
+                parentPosition.z += 10;
+            }
+            else if (dc.position == "z-")
+            {
+                parentPosition.z -= 10;
             }
             else
             {
-                int DoorsToGenerate = mc.GetRoomsNeeded() - mc.GetRoomsGenerated() > 3 ? 3 : mc.GetRoomsNeeded() - mc.GetRoomsGenerated();
+                throw new ArgumentException("Door does not have a set position!");
+            }
+            return parentPosition;
+        }
 
-                goingToFix.GetComponent<RoomController>().DoorsToGenerate = DoorsToGenerate;
-                goingToFix = AddDoorsToThisRoom(goingToFix);
-
-                for (int i = 0; i < DoorsToGenerate; i++)
+        private GameObject IsPositionTaken(Vector3 Request, GameObject[] RoomList)
+        {
+            foreach (GameObject Room in RoomList)
+            {
+                if (Room.transform.position == Request)
                 {
-                    work.Enqueue(mc.AddRoom(InstantinateRoomInADoor(goingToFix, RoomToCopy)));
+                    return Room;
                 }
             }
-        }
-    }
-
-    private GameObject AddDoorsToThisRoom(GameObject Room)
-    {
-        string[] doorTypes = { "x+", "x-", "z+", "z-" };
-
-        for (int i = 0; i < Room.GetComponent<RoomController>().DoorsToGenerate; i++)
-        {
-            Room.GetComponent<RoomController>().SpawnDoor(doorTypes[i]);
-        }
-
-        return Room;
-    }
-
-    private GameObject InstantinateRoomInADoor(GameObject ParentRoom, GameObject NewRoom)
-    {
-        Transform[] Doors = new Transform[4];
-        int DoorCounter = 0;
-
-        for (int i = 0; i < ParentRoom.transform.childCount; i++)
-        {
-            if (ParentRoom.transform.GetChild(i).CompareTag("Door"))
-            {
-                Doors[DoorCounter] = ParentRoom.transform.GetChild(i);
-                DoorCounter++;
-            }
-        }
-
-        for (int i = 0; i <= DoorCounter; i++)
-        {
-            if (Doors[i].childCount <= 1)
-            {
-                Instantiate(NewRoom, Doors[i], true);
-                break;
-            }
-        }
-        return NewRoom;
-    }
+            return null;
+        }*/
 }

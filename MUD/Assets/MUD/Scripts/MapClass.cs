@@ -1,55 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 
-public class MapClass : MonoBehaviour
+public class MapClass
 {
-    private LinkedList<GameObject> rooms;
-
-    private int roomsNeeded;
-
-    private int roomsGenerated;
-
-    public MapClass(int roomsNeeded)
+    private List<GameObject> Rooms;
+    private int RoomsGenerated;
+    
+    public MapClass()
     {
-        rooms = new LinkedList<GameObject>();
-        this.roomsNeeded = roomsNeeded;
-        this.roomsGenerated = 0;
+        this.Rooms = new List<GameObject>();
     }
 
-    public GameObject AddRoom(GameObject room)
-    {
-        this.rooms.AddLast(room);
-        IncreaseRoomsGenerated();
-        return room;
-    }
-
-    public LinkedList<GameObject> GetRooms()
-    {
-        return this.rooms;
-    }
-
-    public int GetRoomsNeeded()
-    {
-        return this.roomsNeeded;
-    }
-
-    public void IncreaseRoomsGenerated()
-    {
-        this.roomsGenerated++;
-    }
-
-    public void SetRoomsGenerated(int roomsGenerated)
-    {
-        this.roomsGenerated = roomsGenerated;
-    }
-
-    public int GetRoomsGenerated()
-    {
-        return this.roomsGenerated;
-    }
-
-    public bool CanGenerateMoreRooms()
-    {
-        return !(GetRoomsGenerated() >= GetRoomsNeeded());
-    }
+    public int GetRoomsGenerated() => this.RoomsGenerated;
+    public void SetRoomsGenerated(int RoomsGenerated) => this.RoomsGenerated = RoomsGenerated;
+    public List<GameObject> GetRoomList() => this.Rooms;
+    public void SetRoomList(List<GameObject> rooms) => this.Rooms = rooms;
 }
