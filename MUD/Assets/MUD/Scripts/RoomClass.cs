@@ -5,24 +5,20 @@ public class RoomClass : MonoBehaviour
 {
     private GameObject room;
 
-    private GameObject[] doors;
+    private GameObject[] doors = new GameObject[4];
 
-    private LinkedList<GameObject> items;
+    private List<GameObject> items = new List<GameObject>();
 
-    private LinkedList<GameObject> npcs;
+    private List<GameObject> npcs = new List<GameObject>();
 
-    private LinkedList<GameObject> players;
+    private List<GameObject> players = new List<GameObject>();
+
+    private List<GameObject> childRooms = new List<GameObject>();
 
     public RoomClass(GameObject room)
     {
         this.room = room;
-        doors = new GameObject[4];
-        items = new LinkedList<GameObject>();
-        npcs = new LinkedList<GameObject>();
-        players = new LinkedList<GameObject>();
     }
-
-    // Sets and Gets
 
     // Doors
     public void SetXPOS(GameObject door) => doors[0] = door;
@@ -44,23 +40,23 @@ public class RoomClass : MonoBehaviour
     public GameObject[] GetDoors() => doors;
 
     // Players
-    public void AddPlayer(GameObject player) => this.players.AddLast(player);
+    public void AddPlayer(GameObject player) => this.players.Add(player);
 
-    public void AddPlayer(LinkedList<GameObject> players) => this.players = players;
+    public void AddPlayer(List<GameObject> players) => this.players = players;
 
-    public LinkedList<GameObject> PlayersLL => this.players;
+    public List<GameObject> Players => this.players;
 
     // Items
-    public void AddItem(GameObject item) => this.players.AddLast(item);
+    public void AddItem(GameObject item) => this.players.Add(item);
 
-    public void AddItem(LinkedList<GameObject> items) => this.items = items;
+    public void AddItem(List<GameObject> items) => this.items = items;
 
-    public LinkedList<GameObject> ItemsLL => this.items;
+    public List<GameObject> Items => this.items;
 
     // NPCs
-    public void AddNPC(GameObject npc) => this.npcs.AddLast(npc);
+    public void AddNPC(GameObject npc) => this.npcs.Add(npc);
 
-    public void AddNPC(LinkedList<GameObject> npcs) => this.npcs = npcs;
+    public void AddNPC(List<GameObject> npcs) => this.npcs = npcs;
 
-    public LinkedList<GameObject> NPCsLL => this.npcs;
+    public List<GameObject> NPCs => this.npcs;
 }

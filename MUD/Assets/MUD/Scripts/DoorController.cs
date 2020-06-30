@@ -4,21 +4,33 @@ public class DoorController : MonoBehaviour
 {
     public string position;
 
+    private GameObject RoomYHold;
+
     private DoorClass dc;
 
     private MapController mc;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        this.dc = new DoorClass(position, gameObject.GetComponentInParent<RoomController>().AddDoor(gameObject));
+        if (RoomYHold != null)
+        {
+            this.dc = new DoorClass(position, RoomYHold);
+        } else
+        {
+            this.dc = new DoorClass(position, gameObject.GetComponentInParent<RoomController>().AddDoor(gameObject));
+        }
         this.mc = gameObject.transform.root.GetComponent<MapController>();
+    }
+
+    public Vector3 GetVector3()
+    {
+        return gameObject.transform.position;
     }
 
     public GameObject SetRoomTo(GameObject RoomTo)
     {
-        this.dc.setRoomY(RoomTo);
-
+        this.RoomYHold = RoomTo;
         return RoomTo;
     }
 }

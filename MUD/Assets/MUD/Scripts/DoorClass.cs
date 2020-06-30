@@ -12,7 +12,7 @@ public class DoorClass : MonoBehaviour
 
     public DoorClass(string position, GameObject roomX, GameObject roomY = null)
     {
-        this.isOpen = false;
+        isOpen = false;
         this.position = position;
         this.roomX = roomX;
         this.roomY = roomY;
